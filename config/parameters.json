@@ -1,0 +1,22 @@
+{
+  "environment": "dev",
+  "databricks": {
+    "workspace_url": "https://adb-1234567890123456.17.azuredatabricks.net",
+    "cluster_id": "cluster-id-here",
+    "catalog": "ecommerce",
+    "schema": "analytics"
+  },
+  "data": {
+    "bronze_path": "/mnt/bronze/ecommerce",
+    "silver_path": "/mnt/silver/ecommerce",
+    "gold_path": "/mnt/gold/ecommerce"
+  },
+  "powerbi": {
+    "workspace_id": "powerbi-workspace-id",
+    "dataset_id": "gold_dataset"
+  },
+  "scheduling": {
+    "etl_frequency": "daily",
+    "etl_time": "02:00"
+  }
+}

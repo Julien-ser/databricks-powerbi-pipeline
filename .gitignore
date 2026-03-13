@@ -1,1 +1,58 @@
+# Environment and secrets
 .env
+config/env.py
+*.pem
+*.key
+secrets/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Databricks
+.dbconn
+.databricks-connect
+
+# Notebooks checkpoints
+.notebook_checkpoints
+
+# Logs
+logs/
+*.log
+
+# Data (local samples - keep structure but not actual data)
+data/*.csv
+data/*.json
+!data/.gitkeep
+
+# Test artifacts
+.test_report.xml
+htmlcov/
