@@ -2,6 +2,7 @@
 Deploy notebooks to Databricks workspace.
 """
 
+import base64
 import logging
 import os
 import sys
@@ -20,10 +21,11 @@ logger = logging.getLogger(__name__)
 try:
     from databricks.sdk import WorkspaceClient
     from databricks.sdk.core import DatabricksError
+    from databricks.sdk.service.workspace import ImportFormat, Language
 
-    DATBRICKS_SDK_AVAILABLE = True
+    DATABRICKS_SDK_AVAILABLE = True
 except ImportError:
-    DATBRICKS_SDK_AVAILABLE = False
+    DATABRICKS_SDK_AVAILABLE = False
     logger.warning("databricks-sdk not installed. Deployment will be simulated.")
 
 
@@ -48,7 +50,7 @@ def deploy_notebook(notebook_path: str, workspace_path: str, client=None) -> boo
         logger.info(f"Deploying {notebook_path} to {workspace_path}")
 
         # If databricks-sdk is not available, simulate deployment
-        if not DATBRICKS_SDK_AVAILABLE:
+        if not DATABRICKS_SDK_AVAILABLE:
             logger.warning("Running in simulation mode (databricks-sdk not installed)")
             return True
 
@@ -60,25 +62,17 @@ def deploy_notebook(notebook_path: str, workspace_path: str, client=None) -> boo
         with open(notebook_path, "rb") as f:
             content = f.read()
 
-        # Determine notebook format (ipynb) and language (PYTHON)
-        # Databricks workspace import_notebook API
-        try:
-            # Try to import as workspace notebook
-            client.workspace.import_notebook(
-                path=workspace_path,
-                content=content,
-                format="SOURCE",  # For .ipynb files
-                language="PYTHON",
-            )
-        except Exception as e:
-            # Fallback: try using the workspace import API
-            logger.warning(f"Primary import failed: {e}, trying alternative method")
-            client.workspace.import_workspace_notebook(
-                path=workspace_path,
-                content=content,
-                format="DBC",  # or AUTO
-            )
+        # Encode content as base64 for API
+        base64_content = base64.b64encode(content).decode("utf-8")
 
+        # Import notebook using correct API
+        client.workspace.import_(
+            path=workspace_path,
+            content=base64_content,
+            format=ImportFormat.SOURCE,
+            language=Language.PYTHON,
+            overwrite=True,
+        )
         logger.info(f"Successfully deployed: {workspace_path}")
         return True
 
@@ -104,7 +98,7 @@ def deploy_all_notebooks(notebooks_dir: str = "notebooks") -> bool:
 
     # Initialize client if databricks-sdk is available
     client = None
-    if DATBRICKS_SDK_AVAILABLE:
+    if DATABRICKS_SDK_AVAILABLE:
         try:
             client = WorkspaceClient(host=DATABRICKS_HOST, token=DATABRICKS_TOKEN)
             logger.info("Connected to Databricks workspace")

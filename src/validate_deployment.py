@@ -56,8 +56,8 @@ class DeploymentValidator:
 
     def check_required_packages(self) -> bool:
         """Check that required packages are installed."""
-        required = ["pyspark", "delta-spark", "pandas", "numpy", "pytest"]
-        optional = ["databricks-sdk"]
+        required = ["pyspark", "delta", "pandas", "numpy", "pytest"]
+        optional = ["databricks"]
 
         missing_required = []
         missing_optional = []
