@@ -1,6 +1,8 @@
 # Databricks Power BI Pipeline
 
-**End-to-end analytics solution connecting Databricks to Power BI for e-commerce analytics.**
+**Production-ready end-to-end analytics solution connecting Databricks to Power BI for e-commerce analytics.**
+
+**Status: Phase 2 (Core Implementation) Complete ✅**
 
 ## Overview
 
@@ -52,50 +54,83 @@ pip install -r requirements.txt
 
 # Configure Databricks connection
 cp config/env.example.py config/env.py
-# Edit config/env.py with your credentials
+# Edit config/env.py with your credentials (DATABRICKS_HOST and DATABRICKS_TOKEN)
 
-# Run tests
+# Optional: Generate sample data (or upload your own)
+python src/generate_sample_data.py
+
+# Run tests (unit and integration)
 python -m pytest tests/
 
-# Deploy notebooks to Databricks
+# Deploy notebooks to Databricks workspace
 python src/deploy_notebooks.py
+
+# Execute the ETL pipeline (bronze → silver → gold)
+python src/monitor_pipeline.py
 ```
 
 ### Using the Pipeline
 
-1. **Ingest Data**: Upload sample e-commerce CSV files to your Databricks workspace
-2. **Run ETL**: Execute notebooks in order: bronze → silver → gold
-3. **Connect Power BI**: Use DirectQuery to connect to the gold Delta table
-4. **Build Reports**: Create custom dashboards from the processed data
+**Quickest path to production:**
+
+1. **Configure & Deploy**:
+   - Set your Databricks credentials in `config/env.py`
+   - Run `python src/deploy_notebooks.py` to upload notebooks to workspace
+   - Upload sample data to `/mnt/data/raw/` in your Databricks workspace
+
+2. **Execute ETL**:
+   - Run `python src/monitor_pipeline.py` to execute the full pipeline
+   - The script runs bronze → silver → gold notebooks automatically
+   - Monitor logs in `logs/pipeline.log` for progress
+
+3. **Connect Power BI**:
+   - Follow the [Power BI Setup Guide](docs/powerbi-setup.md)
+   - Connect to gold Delta tables using DirectQuery
+   - Import the data model and build reports
+
+4. **Schedule** (optional):
+   - Use `monitor_pipeline.py` in a scheduled job for regular refreshes
+   - Set up alerts via email or Slack (configure in `config/env.py`)
 
 ## Project Structure
 
 ```
 databricks-powerbi-pipeline/
-├── notebooks/
-│   ├── 01_bronze/          # Raw data ingestion
-│   ├── 02_silver/          # Data cleaning
-│   └── 03_gold/            # Business aggregates
-├── src/
-│   ├── deploy_notebooks.py
-│   ├── monitor_pipeline.py
-│   └── utils.py
-├── data/
-│   ├── sample_orders.csv
+├── notebooks/                    # Databricks ETL notebooks (Medallion Architecture)
+│   ├── 01_bronze/
+│   │   └── bronze_ingestion.ipynb      # Raw data → Delta bronze tables
+│   ├── 02_silver/
+│   │   └── silver_transformation.ipynb # Cleaned data → Delta silver tables
+│   └── 03_gold/
+│       └── gold_aggregation.ipynb      # Business aggregates → Delta gold tables
+├── src/                          # Python automation scripts
+│   ├── deploy_notebooks.py       # Deploy notebooks to Databricks
+│   ├── monitor_pipeline.py       # Execute pipeline with monitoring
+│   ├── generate_sample_data.py   # Generate synthetic e-commerce data
+│   └── utils.py                  # Shared utilities (logging, config, etc.)
+├── data/                         # Sample datasets (CSV format)
 │   ├── sample_customers.csv
-│   └── sample_products.csv
-├── config/
-│   ├── env.example.py
-│   └── parameters.json
-├── tests/
-│   ├── unit/
-│   └── integration/
-├── docs/
-│   ├── architecture.md
-│   └── deployment.md
-├── requirements.txt
-├── README.md
-└── TASKS.md
+│   ├── sample_products.csv
+│   ├── sample_orders.csv
+│   └── sample_order_items.csv
+├── config/                       # Configuration files
+│   ├── env.py                    # Environment credentials (gitignored)
+│   ├── env.example.py            # Template for env.py
+│   └── parameters.json           # Pipeline parameters (paths, catalog, etc.)
+├── tests/                        # Automated tests
+│   ├── unit/                     # Unit tests (utils, data generation)
+│   │   ├── test_utils.py
+│   │   └── test_data_generation.py
+│   └── integration/              # Integration tests (end-to-end)
+│       └── test_integration.py
+├── docs/                         # Documentation
+│   ├── architecture.md           # System design and architecture
+│   ├── deployment.md             # Step-by-step deployment guide
+│   └── powerbi-setup.md          # Power BI connection and dashboard setup
+├── logs/                         # Pipeline execution logs (auto-generated)
+├── requirements.txt              # Python dependencies
+├── README.md                     # This file
+└── TASKS.md                      # Project roadmap and progress tracking
 ```
 
 ## Sample Data
@@ -107,25 +142,33 @@ The project includes synthetic e-commerce data:
 
 ## Power BI Integration
 
-After processing data through the Delta Lake pipeline:
+After processing data through the Delta Lake pipeline, connect Power BI for analytics. See the **[Power BI Setup Guide](docs/powerbi-setup.md)** for detailed instructions.
+
+**Quick steps:**
 1. Get your Databricks workspace URL and token
 2. In Power BI Desktop: Get Data → Databricks
 3. Enter server and database name pointing to gold Delta table
 4. Use DirectQuery mode for real-time dashboard updates
 5. Build visuals for sales trends, customer segmentation, product performance
 
+Or, for step-by-step instructions with screenshots, follow the complete guide in `docs/powerbi-setup.md`.
+
 ## Testing
 
+The project includes comprehensive tests:
+
 ```bash
-# Unit tests
+# Unit tests (fast, no external dependencies)
 pytest tests/unit/
 
-# Integration tests (requires Databricks connection)
+# Integration tests (run in simulation mode by default, no Databricks required)
 pytest tests/integration/
 
-# Full test suite with coverage
+# Full test suite with coverage report
 pytest --cov=src tests/
 ```
+
+**Note:** Integration tests run in *simulation mode* when databricks-sdk is not installed, making them suitable for CI/CD and local development without cloud credentials. To test against a real Databricks workspace, install `databricks-sdk` and configure your credentials.
 
 ## Development Status
 
