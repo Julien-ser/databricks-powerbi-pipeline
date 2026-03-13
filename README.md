@@ -179,6 +179,11 @@ See [TASKS.md](TASKS.md) for current progress and upcoming work.
 - [Architecture Guide](docs/architecture.md)
 - [Deployment Guide](docs/deployment.md)
 - [Power BI Setup](docs/powerbi-setup.md)
+- [API Reference](docs/api-reference.md)
+- [Configuration Reference](docs/configuration.md)
+- [Monitoring & Operations](docs/monitoring.md)
+- [Data Dictionary](docs/data-dictionary.md)
+- [Contributing Guide](CONTRIBUTING.md)
 
 ## Contributing
 
