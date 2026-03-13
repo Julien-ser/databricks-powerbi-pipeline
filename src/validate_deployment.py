@@ -206,6 +206,38 @@ class DeploymentValidator:
         # Not a hard failure if sample data missing - users can provide their own
         return True
 
+    def check_production_readiness(self) -> bool:
+        """Check production deployment readiness."""
+        required_scripts = [
+            "src/health_check.py",
+            "src/rollback.py",
+            "src/deploy_notebooks.py",
+            "src/monitor_pipeline.py",
+        ]
+
+        all_exist = True
+        for script in required_scripts:
+            path = Path(script)
+            if not path.exists():
+                self.errors.append(f"Deployment script missing: {script}")
+                all_exist = False
+            else:
+                # Check if executable (on Unix-like systems)
+                if path.suffix == ".py":
+                    self.passed.append(f"Deployment script exists: {script}")
+
+        # Check if env.py has been created from template
+        env_file = Path("config/env.py")
+        env_example = Path("config/env.example.py")
+        if env_file.exists() and env_example.exists():
+            self.passed.append("Environment configuration is set up")
+        elif env_example.exists():
+            self.warnings.append(
+                "config/env.py not created from template - required for deployment"
+            )
+
+        return all_exist
+
     def check_directory_structure(self) -> bool:
         """Check that required directories exist."""
         directories = ["notebooks", "src", "config", "tests", "docs", "data", "logs"]
@@ -269,6 +301,7 @@ class DeploymentValidator:
             self.check_required_packages,
             self.check_notebooks,
             self.check_sample_data,
+            self.check_production_readiness,
             self.check_databricks_connection,
         ]
 

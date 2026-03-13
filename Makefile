@@ -1,4 +1,4 @@
-.PHONY: help install test lint format docker-build docker-run validate deploy clean
+.PHONY: help install test lint format docker-build docker-run validate deploy clean health-check rollback
 
 help:
 	@echo "Databricks PowerBI Pipeline - Available commands:"
@@ -10,9 +10,11 @@ help:
 	@echo "  make lint           Run linters (flake8, black, mypy)"
 	@echo "  make format         Auto-format code with black"
 	@echo "  make validate       Validate deployment configuration"
+	@echo "  make health-check   Run production health checks"
 	@echo "  make docker-build   Build Docker image"
 	@echo "  make docker-run     Run Docker container"
 	@echo "  make deploy         Deploy notebooks and run pipeline"
+	@echo "  make rollback       Rollback to previous state (disaster recovery)"
 	@echo "  make clean          Clean build artifacts and logs"
 	@echo "  make clean-all      Clean everything including virtualenv"
 
@@ -41,15 +43,11 @@ format:
 validate:
 	python src/validate_deployment.py
 
-docker-build:
-	docker build -t databricks-powerbi-pipeline:latest .
+health-check:
+	python src/health_check.py
 
-docker-run:
-	docker run -it --rm \
-		-v $(pwd)/config:/app/config \
-		-v $(pwd)/data:/app/data \
-		-v $(pwd)/logs:/app/logs \
-		databricks-powerbi-pipeline:latest
+rollback:
+	python src/rollback.py
 
 deploy:
 	python src/deploy_notebooks.py

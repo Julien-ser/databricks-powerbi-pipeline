@@ -2,7 +2,7 @@
 
 **Production-ready end-to-end analytics solution connecting Databricks to Power BI for e-commerce analytics.**
 
-**Status: Phase 3 (Testing) Complete ✅**
+**Status: Phase 4 (Deployment) In Progress 🚀**
 
 ## Overview
 
@@ -88,8 +88,10 @@ python src/monitor_pipeline.py
    - Connect to gold Delta tables using DirectQuery
    - Import the data model and build reports
 
-4. **Schedule** (optional):
-   - Use `monitor_pipeline.py` in a scheduled job for regular refreshes
+4. **Monitor and Maintain**:
+   - Run `make health-check` to verify pipeline health
+   - Check `logs/pipeline.log` for execution details
+   - Use `make rollback` for disaster recovery if needed
    - Set up alerts via email or Slack (configure in `config/env.py`)
 
 ## Project Structure
