@@ -3,6 +3,7 @@ Unit tests for utils module.
 """
 
 import json
+import logging
 import tempfile
 from pathlib import Path
 
@@ -91,3 +92,107 @@ class TestGetProjectRoot:
         expected_dirs = ["src", "config", "data", "notebooks", "tests", "docs"]
         for dir_name in expected_dirs:
             assert (root / dir_name).exists() or (root / dir_name).is_dir()
+
+
+class TestSetupLogging:
+    """Tests for setup_logging function."""
+
+    def _reset_logging(self):
+        """Reset logging configuration to clean state."""
+        logging.root.manager.loggerDict.clear()
+        for handler in logging.root.handlers[:]:
+            logging.root.removeHandler(handler)
+            handler.close()
+        logging.root.setLevel(logging.WARNING)
+
+    def test_setup_logging_with_default_level(self, tmp_path):
+        """Test that setup_logging works with default INFO level."""
+        import os
+
+        old_cwd = os.getcwd()
+        try:
+            os.chdir(tmp_path)
+            ensure_directory("logs")
+            self._reset_logging()
+            setup_logging()
+            root_logger = logging.getLogger()
+            assert root_logger.level == logging.INFO
+        finally:
+            os.chdir(old_cwd)
+            self._reset_logging()
+
+    def test_setup_logging_with_custom_level(self, tmp_path):
+        """Test that setup_logging works with custom log level."""
+        import os
+
+        old_cwd = os.getcwd()
+        try:
+            os.chdir(tmp_path)
+            ensure_directory("logs")
+            self._reset_logging()
+            setup_logging("DEBUG")
+            root_logger = logging.getLogger()
+            assert root_logger.level == logging.DEBUG
+        finally:
+            os.chdir(old_cwd)
+            self._reset_logging()
+
+    def test_setup_logging_creates_handlers(self, tmp_path):
+        """Test that setup_logging creates expected handlers."""
+        import os
+
+        old_cwd = os.getcwd()
+        try:
+            os.chdir(tmp_path)
+            ensure_directory("logs")
+            self._reset_logging()
+            setup_logging()
+            root_logger = logging.getLogger()
+            # Should have at least 2 handlers (StreamHandler and FileHandler)
+            assert len(root_logger.handlers) >= 2
+            # Check for FileHandler
+            file_handlers = [
+                h for h in root_logger.handlers if isinstance(h, logging.FileHandler)
+            ]
+            assert len(file_handlers) == 1
+        finally:
+            os.chdir(old_cwd)
+            self._reset_logging()
+
+    def test_setup_logging_with_custom_level(self, tmp_path):
+        """Test that setup_logging works with custom log level."""
+        import os
+
+        old_cwd = os.getcwd()
+        try:
+            os.chdir(tmp_path)
+            ensure_directory("logs")
+            setup_logging("DEBUG")
+            root_logger = logging.getLogger()
+            assert root_logger.level == logging.DEBUG
+        finally:
+            os.chdir(old_cwd)
+            logging.root.manager.loggerDict.clear()
+            logging.basicConfig(level=logging.WARNING, force=True)
+
+    def test_setup_logging_creates_handlers(self, tmp_path):
+        """Test that setup_logging creates expected handlers."""
+        import os
+
+        old_cwd = os.getcwd()
+        try:
+            os.chdir(tmp_path)
+            ensure_directory("logs")
+            setup_logging()
+            root_logger = logging.getLogger()
+            # Should have at least 2 handlers (StreamHandler and FileHandler)
+            assert len(root_logger.handlers) >= 2
+            # Check for FileHandler
+            file_handlers = [
+                h for h in root_logger.handlers if isinstance(h, logging.FileHandler)
+            ]
+            assert len(file_handlers) == 1
+        finally:
+            os.chdir(old_cwd)
+            logging.root.manager.loggerDict.clear()
+            logging.basicConfig(level=logging.WARNING, force=True)
