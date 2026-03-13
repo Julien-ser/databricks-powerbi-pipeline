@@ -1,0 +1,114 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "databricks-powerbi-pipeline"
+version = "1.0.0"
+description = "Production-ready end-to-end analytics solution connecting Databricks to Power BI for e-commerce analytics"
+readme = "README.md"
+authors = [{name = "Databricks PowerBI Pipeline Team", email = "team@example.com"}]
+license = {text = "MIT"}
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Database",
+    "Topic :: Office/Business :: Scheduling",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+keywords = ["databricks", "powerbi", "etl", "analytics", "delta-lake", "medallion-architecture"]
+requires-python = ">=3.8"
+dependencies = [
+    "databricks-sdk>=0.20.0",
+    "pyspark>=3.4.0",
+    "delta-spark>=2.4.0",
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "pyyaml>=6.0",
+    "python-dotenv>=1.0.0",
+    "requests>=2.31.0",
+    "tqdm>=4.65.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=23.0.0",
+    "flake8>=6.0.0",
+    "mypy>=1.0.0",
+    "jupyter>=1.0.0",
+    "ipykernel>=6.0.0",
+]
+azure = [
+    "azure-identity>=1.14.0",
+    "azure-storage-blob>=12.17.0",
+]
+deploy = [
+    "docker>=6.0.0",
+    "bandit>=1.7.0",
+    "safety>=2.0.0",
+]
+
+[project.scripts]
+deploy-notebooks = "src.deploy_notebooks:main"
+run-pipeline = "src.monitor_pipeline:run_etl_pipeline"
+validate-deployment = "src.validate_deployment:main"
+generate-data = "src.generate_sample_data:main"
+
+[project.urls]
+Homepage = "https://github.com/your-org/databricks-powerbi-pipeline"
+Documentation = "https://github.com/your-org/databricks-powerbi-pipeline/blob/main/docs/"
+Repository = "https://github.com/your-org/databricks-powerbi-pipeline.git"
+"Bug Tracker" = "https://github.com/your-org/databricks-powerbi-pipeline/issues"
+
+[tool.setuptools]
+packages = ["src"]
+
+[tool.setuptools.package-data]
+"" = ["*.json", "*.yaml", "*.yml"]
+
+[tool.black]
+line-length = 100
+target-version = ['py38']
+
+[tool.flake8]
+max-line-length = 100
+exclude = [".git", "__pycache__", "build", "dist", "*.egg-info", ".venv", "venv"]
+ignore = ["E203", "W503"]
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+exclude = ["notebooks", "tests/integration", "build", "dist"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--tb=short",
+    "--cov=src",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+]
