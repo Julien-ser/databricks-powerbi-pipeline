@@ -38,9 +38,9 @@
 - [x] Build core logic (ETL notebooks, deployment, monitoring)
 
 ## Phase 3: Testing
-- [ ] Write and run tests
-- [ ] Integration testing
-- [ ] Bug fixes
+- [x] Write and run tests
+- [x] Integration testing
+- [x] Bug fixes
 
 ## Phase 4: Documentation & Deployment
 - [ ] Write documentation

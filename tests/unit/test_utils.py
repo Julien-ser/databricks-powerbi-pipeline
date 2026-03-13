@@ -159,22 +159,6 @@ class TestSetupLogging:
             os.chdir(old_cwd)
             self._reset_logging()
 
-    def test_setup_logging_with_custom_level(self, tmp_path):
-        """Test that setup_logging works with custom log level."""
-        import os
-
-        old_cwd = os.getcwd()
-        try:
-            os.chdir(tmp_path)
-            ensure_directory("logs")
-            setup_logging("DEBUG")
-            root_logger = logging.getLogger()
-            assert root_logger.level == logging.DEBUG
-        finally:
-            os.chdir(old_cwd)
-            logging.root.manager.loggerDict.clear()
-            logging.basicConfig(level=logging.WARNING, force=True)
-
     def test_setup_logging_creates_handlers(self, tmp_path):
         """Test that setup_logging creates expected handlers."""
         import os

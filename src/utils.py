@@ -30,6 +30,13 @@ def load_config(config_path: str) -> Dict[str, Any]:
 
 def setup_logging(log_level: str = "INFO") -> None:
     """Configure logging for the application."""
+    # Remove existing handlers to allow reconfiguration
+    root_logger = logging.getLogger()
+    for handler in root_logger.handlers[:]:
+        root_logger.removeHandler(handler)
+        handler.close()
+
+    # Configure logging
     logging.basicConfig(
         level=getattr(logging, log_level.upper()),
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
